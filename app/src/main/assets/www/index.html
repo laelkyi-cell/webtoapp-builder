@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mocana Services</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Cordova -->
+    <script src="cordova.js"></script>
+    
+    <style>
+        body { font-family: sans-serif; -webkit-tap-highlight-color: transparent; background: #f8fafc; }
+        .car-anim { animation: car-shake 0.2s infinite; }
+        @keyframes car-shake { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        .fixed { position: fixed; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    
+    <!-- Car Loader -->
+    <div id="car-loader" class="fixed inset-0 bg-white z-[999] hidden flex-col items-center justify-center p-6 text-center" style="background: rgba(255,255,255,0.95); display: none;">
+        <div class="car-anim mb-6">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+                <circle cx="7" cy="18" r="2"/>
+                <circle cx="17" cy="18" r="2"/>
+                <path d="M15 18H9"/>
+                <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
+            </svg>
+        </div>
+        <h2 id="loader-msg" class="text-md font-bold text-gray-800">🤠কাজ চলছে🤠</h2>
+    </div>
+    
+    <!-- Toast Message -->
+    <div id="toast" class="fixed top-10 inset-x-6 mx-auto max-w-xs p-4 rounded-2xl shadow-2xl hidden items-center gap-3 z-[1100] border-2" style="display: none;">
+        <span id="toast-icon"></span>
+        <span id="toast-msg" class="font-bold text-sm uppercase text-white"></span>
+    </div>
+    
+    <!-- JavaScript Files -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

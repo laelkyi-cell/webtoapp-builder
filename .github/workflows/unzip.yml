@@ -1,0 +1,27 @@
+name: Unzip Files
+on:
+  push:
+    paths:
+      - '*.zip'
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Find and extract zip file
+        run: |
+          zipfile=$(ls *.zip | head -1)
+          if [ -n "$zipfile" ]; then
+            unzip -o "$zipfile"
+            rm "$zipfile"
+          fi
+      
+      - name: Commit extracted files
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add .
+          git commit -m "Auto-unzip files" || exit 0
+          git push

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" 
+        xmlns:android="http://schemas.android.com/apk/res/android" 
+        id="com.mocana.services" 
+        version="1.0.0">
+    
+    <name>Mocana Services</name>
+    <description>Service Provider App</description>
+    <author email="your@email.com">Your Name</author>
+    
+    <content src="index.html" />
+    <access origin="*" />
+    
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    
+    <platform name="android">
+        <allow-intent href="market:*" />
+    </platform>
+    
+    <plugin name="cordova-plugin-inappbrowser" spec="6.0.0" />
+    
+    <preference name="orientation" value="default" />
+    <preference name="fullscreen" value="false" />
+</widget>

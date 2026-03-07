@@ -1,4 +1,5 @@
-name: Unzip Files
+name: Unzip Gradle Files
+
 on:
   push:
     paths:
@@ -10,12 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Find and extract zip file
+      - name: Extract gradle.zip
         run: |
-          zipfile=$(ls *.zip | head -1)
-          if [ -n "$zipfile" ]; then
-            unzip -o "$zipfile"
-            rm "$zipfile"
+          if [ -f "gradle.zip" ]; then
+            unzip -o gradle.zip
+            rm gradle.zip
           fi
       
       - name: Commit extracted files
@@ -23,5 +23,5 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git add .
-          git commit -m "Auto-unzip files" || exit 0
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-unzip gradle files"
           git push

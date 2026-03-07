@@ -1,0 +1,52 @@
+<div class="screen active">
+    <!-- Header -->
+    <div class="header">
+        <h1>অ্যাডমিন প্যানেল</h1>
+        <button id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+    
+    <div style="padding: 16px;">
+        <h3 style="margin-bottom: 20px;">ড্যাশবোর্ড ওভারভিউ</h3>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card">
+                <div class="number" id="stats-total-orders">0</div>
+                <div class="label">মোট অর্ডার</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stats-pending-orders">0</div>
+                <div class="label">পেন্ডিং</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stats-completed-orders">0</div>
+                <div class="label">সম্পন্ন</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="stats-total-users">0</div>
+                <div class="label">ইউজার</div>
+            </div>
+        </div>
+        
+        <!-- Admin Navigation -->
+        <div style="margin-top: 30px;">
+            <h4 style="margin-bottom: 12px;">দ্রুত অপশন</h4>
+            <div style="display: grid; gap: 12px;">
+                <a href="#/admin/users" class="btn btn-primary" style="text-decoration: none; text-align: center;">
+                    <i class="fas fa-users"></i> ইউজার ম্যানেজমেন্ট
+                </a>
+                <a href="#/admin/orders" class="btn btn-primary" style="text-decoration: none; text-align: center;">
+                    <i class="fas fa-shopping-bag"></i> অর্ডার দেখুন
+                </a>
+                <a href="#/admin/services" class="btn btn-primary" style="text-decoration: none; text-align: center;">
+                    <i class="fas fa-cog"></i> সার্ভিস ও প্যাকেজ
+                </a>
+                <a href="#/admin/settings" class="btn btn-primary" style="text-decoration: none; text-align: center;">
+                    <i class="fas fa-sliders-h"></i> সেটিংস
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

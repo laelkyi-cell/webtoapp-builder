@@ -1,0 +1,31 @@
+<div class="screen active">
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" id="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1>নতুন অর্ডার</h1>
+        <div class="balance" id="user-balance">0 টাকা</div>
+    </div>
+    
+    <div style="padding: 16px;">
+        <div id="selected-price" style="background-color: #dbeafe; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: 600; text-align: center;">
+            মূল্য: প্যাকেজ নির্বাচন করুন
+        </div>
+        
+        <h3 style="margin-bottom: 16px;">প্যাকেজ নির্বাচন করুন</h3>
+        
+        <!-- Packages Grid -->
+        <div class="packages-grid" id="packages-grid"></div>
+        
+        <!-- Input Fields (Hidden initially) -->
+        <div id="input-fields" style="display: none; margin-top: 20px;">
+            <h4 style="margin: 20px 0 12px;">তথ্য দিন</h4>
+        </div>
+        
+        <!-- Submit Button (Hidden initially) -->
+        <button class="btn btn-primary" id="submit-order" style="display: none; margin-top: 20px;">
+            অর্ডার করুন
+        </button>
+    </div>
+</div>

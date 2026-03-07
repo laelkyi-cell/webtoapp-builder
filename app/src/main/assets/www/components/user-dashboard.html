@@ -1,0 +1,57 @@
+<div class="screen active">
+    <!-- Header -->
+    <div class="header">
+        <button id="menu-btn" onclick="window.location.hash='#/orders'">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1>Dashboard</h1>
+        <div class="balance" id="user-balance">0 টাকা</div>
+    </div>
+    
+    <!-- Marquee Notice -->
+    <div class="notice" id="notice-text"></div>
+    
+    <div style="padding: 16px;">
+        <!-- Welcome -->
+        <h2 style="margin-bottom: 8px;">স্বাগতম, <span id="user-name">User</span>!</h2>
+        
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <div class="number" id="stats-pending">0</div>
+                <div class="label">পেন্ডিং</div>
+            </div>
+            <div class="stat-card complete">
+                <div class="number" id="stats-complete">0</div>
+                <div class="label">সম্পন্ন</div>
+            </div>
+            <div class="stat-card cancel">
+                <div class="number" id="stats-cancel">0</div>
+                <div class="label">বাতিল</div>
+            </div>
+        </div>
+        
+        <!-- Support Team -->
+        <div class="support-grid" id="support-grid"></div>
+        
+        <!-- Services -->
+        <h3 style="margin: 20px 0 12px;">আমাদের সার্ভিস সমূহ</h3>
+        <div class="services-grid" id="services-grid"></div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#/" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>হোম</span>
+        </a>
+        <a href="#/orders" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>অর্ডার</span>
+        </a>
+        <a href="#" class="nav-item" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>লগআউট</span>
+        </a>
+    </nav>
+</div>

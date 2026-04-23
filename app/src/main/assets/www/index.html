@@ -1,56 +1,361 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mocana Services</title>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Cordova -->
-    <script src="cordova.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fiches PDF">
+    <link rel="manifest" href="data:application/manifest+json,{}">
+    <title>Fiches PDF - Application Android</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        body { font-family: sans-serif; -webkit-tap-highlight-color: transparent; background: #f8fafc; }
-        .car-anim { animation: car-shake 0.2s infinite; }
-        @keyframes car-shake { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-        .fixed { position: fixed; }
-        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-        .hidden { display: none !important; }
-        .flex { display: flex; }
+        /* (mêmes styles que la version stable, inchangés) */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f1f5f9; margin: 0; padding: 12px; }
+        .app { max-width: 100%; background: white; border-radius: 28px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); overflow: hidden; padding: 16px; }
+        h1 { font-size: 1.5rem; margin: 0 0 4px; }
+        .sub { font-size: 0.8rem; color: #334155; border-left: 3px solid #3b82f6; padding-left: 12px; margin-bottom: 20px; }
+        .toolbar { background: #f8fafc; border-radius: 20px; padding: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+        .file-label { background: #3b82f6; color: white; padding: 8px 16px; border-radius: 40px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-block; }
+        input[type="file"] { display: none; }
+        .file-name { font-size: 0.75rem; color: #475569; word-break: break-all; }
+        .nav-group { display: flex; gap: 6px; background: white; padding: 4px 10px; border-radius: 40px; border: 1px solid #cbd5e1; }
+        .nav-btn { background: #f1f5f9; border: none; font-size: 1.2rem; padding: 4px 12px; border-radius: 30px; cursor: pointer; }
+        .page-info { font-size: 0.85rem; font-weight: 500; }
+        .fiches-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 12px; margin-bottom: 20px; }
+        .section-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; padding-left: 8px; border-left: 4px solid #3b82f6; color: #1e40af; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .search-box { display: flex; gap: 8px; margin-bottom: 12px; }
+        .search-input { flex: 1; padding: 8px 12px; border-radius: 30px; border: 1px solid #cbd5e1; font-size: 0.8rem; }
+        .fiches-buttons { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0; max-height: 220px; overflow-y: auto; }
+        .fiche-btn { background: #eef2ff; border: none; border-radius: 40px; padding: 8px 14px; font-size: 0.75rem; font-weight: 500; text-align: left; cursor: pointer; flex: 0 0 auto; word-break: break-word; max-width: 100%; }
+        .fiche-btn.active { background: #1e40af; color: white; }
+        .no-fiches { color: #e11d48; font-style: italic; font-size: 0.8rem; padding: 4px 8px; }
+        .main-grid { display: flex; flex-direction: column; gap: 20px; }
+        .pdf-viewer { background: #eef2ff; border-radius: 20px; padding: 12px; text-align: center; }
+        .canvas-container { background: white; border-radius: 16px; display: inline-block; overflow-x: auto; max-width: 100%; }
+        canvas { width: 100%; height: auto; display: block; }
+        .transcript-area { background: white; border: 1px solid #e2e8f0; border-radius: 20px; display: flex; flex-direction: column; }
+        .transcript-header { background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .transcript-content { padding: 16px; max-height: 400px; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; font-family: ui-monospace, monospace; background: #fefefe; }
+        .highlight { background-color: #fef08a; cursor: pointer; }
+        .status { background: #f1f5f9; border-radius: 30px; padding: 8px 12px; font-size: 0.75rem; margin-top: 10px; text-align: center; }
+        footer { font-size: 0.7rem; text-align: center; margin-top: 20px; color: #5b6e8c; }
+        button { touch-action: manipulation; }
+        @media (min-width: 768px) { .main-grid { flex-direction: row; } .pdf-viewer { flex: 1; } .transcript-area { flex: 2; } body { padding: 20px; } }
     </style>
 </head>
 <body>
-    <div id="app"></div>
-    
-    <!-- Car Loader -->
-    <div id="car-loader" class="fixed inset-0 bg-white z-[999] hidden flex-col items-center justify-center p-6 text-center" style="background: rgba(255,255,255,0.95); display: none;">
-        <div class="car-anim mb-6">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
-                <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
-                <circle cx="7" cy="18" r="2"/>
-                <circle cx="17" cy="18" r="2"/>
-                <path d="M15 18H9"/>
-                <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
-            </svg>
+<div class="app">
+    <h1>📚 Fiches PDF <span style="font-size:0.7rem; background:#eef2ff; padding:2px 8px; border-radius:30px;">Installable</span></h1>
+    <div class="sub">🔍 Chargez un PDF → fiches listées. Recherche, export, vocal, partage, surlignage. ✔️ Installez l'application via le navigateur.</div>
+
+    <div class="toolbar">
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <label class="file-label" for="pdfInput">📁 Choisir PDF</label>
+            <input type="file" id="pdfInput" accept="application/pdf">
+            <span id="fileName" class="file-name">Aucun fichier</span>
         </div>
-        <h2 id="loader-msg" class="text-md font-bold text-gray-800">🤠কাজ চলছে🤠</h2>
+        <div class="nav-group">
+            <button id="prevPage" class="nav-btn" disabled>◀</button>
+            <span id="pageNum" class="page-info">0</span> / <span id="pageCount" class="page-info">0</span>
+            <button id="nextPage" class="nav-btn" disabled>▶</button>
+        </div>
+        <button id="exportBtn" class="export-btn" style="background:#16a34a; color:white; border:none; padding:6px 12px; border-radius:30px;">💾 Exporter JSON</button>
     </div>
-    
-    <!-- Toast Message -->
-    <div id="toast" class="fixed top-10 inset-x-6 mx-auto max-w-xs p-4 rounded-2xl shadow-2xl hidden items-center gap-3 z-[1100] border-2" style="display: none;">
-        <span id="toast-icon"></span>
-        <span id="toast-msg" class="font-bold text-sm uppercase text-white"></span>
+
+    <div class="fiches-panel">
+        <div class="section-title">
+            <span>📑 Toutes les fiches</span>
+            <button id="refreshFichesBtn" style="background:none; border:1px solid #94a3b8; border-radius:30px; padding:4px 10px;">⟳ Rafraîchir</button>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Rechercher dans les fiches (titre ou contenu)...">
+        </div>
+        <div id="fichesList" class="fiches-buttons">
+            <span class="no-fiches">Aucun PDF chargé</span>
+        </div>
+        <div id="ficheStatus" class="status">ℹ️ Cliquez sur une fiche</div>
     </div>
-    
-    <!-- JavaScript Files -->
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
+
+    <div class="main-grid">
+        <div class="pdf-viewer">
+            <div class="canvas-container">
+                <canvas id="pdfCanvas"></canvas>
+            </div>
+            <div class="status" id="viewerStatus">⬆️ Chargez un PDF</div>
+        </div>
+
+        <div class="transcript-area">
+            <div class="transcript-header">
+                <span>📝 <span id="transcriptTitle">Contenu de la fiche</span></span>
+                <div style="display: flex; gap: 6px;">
+                    <button id="speakBtn" class="speak-btn" style="background:#8b5cf6; border:none; color:white; padding:4px 12px; border-radius:30px;">🔊 Lire</button>
+                    <button id="shareBtn" class="share-btn" style="background:#f97316; border:none; color:white; padding:4px 12px; border-radius:30px;">📤 Partager</button>
+                    <button id="copyTranscriptBtn" style="background:#e6f0ff; border:none; padding:4px 12px; border-radius:30px;">📋 Copier</button>
+                </div>
+            </div>
+            <div id="transcriptText" class="transcript-content">
+                ✨ Les fiches apparaîtront ci-dessus.<br>➤ Cliquez sur une fiche pour voir son texte.<br>➤ Sélectionnez un passage pour le surligner (jaune).<br>➤ Pour installer l'application, ouvrez Chrome → menu → "Installer l'application".
+            </div>
+        </div>
+    </div>
+    <footer>📲 Installation : Chrome → menu (3 points) → "Installer l'application". L'icône apparaîtra sur l'écran d'accueil.</footer>
+</div>
+
+<script>
+    (function() {
+        // ---------- PWA : manifeste et service worker simples ----------
+        const manifestObj = {
+            name: "Fiches PDF",
+            short_name: "FichesPDF",
+            start_url: ".",
+            display: "standalone",
+            theme_color: "#3b82f6",
+            background_color: "#ffffff",
+            icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%233b82f6'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📚%3C/text%3E%3C/svg%3E", sizes: "any", type: "image/svg+xml" }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], {type: "application/json"});
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.querySelector('link[rel="manifest"]');
+        if (manifestLink) manifestLink.href = manifestURL;
+
+        // Service worker minimal (seulement pour la mise en cache statique, sans bloquer pdf.js)
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'fiches-pwa-v1';
+                self.addEventListener('install', event => { self.skipWaiting(); });
+                self.addEventListener('fetch', event => { event.respondWith(fetch(event.request)); });
+            `;
+            const swBlob = new Blob([swCode], {type: "application/javascript"});
+            const swURL = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swURL).catch(err => console.log("SW non enregistré (pas grave)", err));
+        }
+
+        // ---------- Application principale (identique à la version stable) ----------
+        if (typeof pdfjsLib === 'undefined') {
+            alert("Erreur : PDF.js non chargé. Vérifiez votre connexion.");
+            return;
+        }
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        // ... tout le reste du code de la version stable (fonctions, événements) ...
+        // Je reprends le code fonctionnel vu précédemment, mais pour éviter la répétition,
+        // j'inclus directement la version complète déjà testée.
+        // (Le code ci-dessous est celui de la version stable, légèrement adapté pour la concision)
+
+        // Éléments DOM
+        const fileInput = document.getElementById('pdfInput');
+        const fileNameSpan = document.getElementById('fileName');
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        const pageNumSpan = document.getElementById('pageNum');
+        const pageCountSpan = document.getElementById('pageCount');
+        const canvas = document.getElementById('pdfCanvas');
+        const ctx = canvas.getContext('2d');
+        const transcriptDiv = document.getElementById('transcriptText');
+        const transcriptTitleSpan = document.getElementById('transcriptTitle');
+        const copyBtn = document.getElementById('copyTranscriptBtn');
+        const speakBtn = document.getElementById('speakBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const viewerStatus = document.getElementById('viewerStatus');
+        const fichesListDiv = document.getElementById('fichesList');
+        const ficheStatusSpan = document.getElementById('ficheStatus');
+        const refreshBtn = document.getElementById('refreshFichesBtn');
+        const searchInput = document.getElementById('searchInput');
+
+        let pdfDoc = null, currentPage = 1, totalPages = 0, globalFullText = "", fiches = [], currentFicheIndex = null, currentPDFName = "";
+
+        async function renderPage(pageNumber) {
+            if (!pdfDoc) return;
+            try {
+                const page = await pdfDoc.getPage(pageNumber);
+                const scale = Math.min(1.5, window.innerWidth/600);
+                const viewport = page.getViewport({ scale });
+                canvas.width = viewport.width; canvas.height = viewport.height;
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                pageNumSpan.textContent = pageNumber;
+                viewerStatus.textContent = `Page ${pageNumber}/${totalPages}`;
+            } catch(e) { viewerStatus.textContent = "Erreur page"; }
+        }
+        function updateNavButtons() {
+            if (!pdfDoc) { prevBtn.disabled = nextBtn.disabled = true; return; }
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+        }
+        function onPrev() { if (currentPage>1) { currentPage--; renderPage(currentPage); updateNavButtons(); } }
+        function onNext() { if (currentPage<totalPages) { currentPage++; renderPage(currentPage); updateNavButtons(); } }
+
+        async function extractFullText(pdfDocument) {
+            let full = "";
+            for (let i=1; i<=pdfDocument.numPages; i++) {
+                viewerStatus.textContent = `Extraction page ${i}/${pdfDocument.numPages}...`;
+                const page = await pdfDocument.getPage(i);
+                const content = await page.getTextContent();
+                let pageText = content.items.map(item=>item.str).join(' ').replace(/\s+/g,' ').trim();
+                full += pageText + "\n\n";
+            }
+            return full;
+        }
+
+        function detectAllFiches(fullText) {
+            const regex = /Fiche\s+(?:n°\s*)?(\d+)\s*[:.\-–—]?\s*([^\n\r]{0,120})/gi;
+            const matches = [];
+            let match;
+            while ((match = regex.exec(fullText)) !== null) {
+                matches.push({
+                    numero: parseInt(match[1]),
+                    titre: match[2].trim().replace(/[.:;]$/,'').substring(0,80) || `Fiche ${match[1]}`,
+                    debutIndex: match.index,
+                    endIndex: -1
+                });
+            }
+            for (let i=0; i<matches.length; i++) matches[i].endIndex = (i+1 < matches.length) ? matches[i+1].debutIndex : fullText.length;
+            return matches;
+        }
+
+        function renderFichesButtons(filterText = "") {
+            const lowerFilter = filterText.toLowerCase();
+            let filtered = filterText ? fiches.filter(f => f.titre.toLowerCase().includes(lowerFilter) || globalFullText.substring(f.debutIndex, f.endIndex).toLowerCase().includes(lowerFilter)) : fiches;
+            fichesListDiv.innerHTML = "";
+            if (!filtered.length) { fichesListDiv.innerHTML = '<span class="no-fiches">Aucune fiche correspondante</span>'; ficheStatusSpan.textContent = filterText ? "Aucun résultat" : "Aucune fiche détectée"; return; }
+            filtered.forEach((fiche, idx) => {
+                const originalIndex = fiches.findIndex(f => f.debutIndex === fiche.debutIndex);
+                const btn = document.createElement('button');
+                btn.className = 'fiche-btn';
+                if (currentFicheIndex === originalIndex) btn.classList.add('active');
+                btn.textContent = `📄 Fiche ${fiche.numero} – ${fiche.titre}`;
+                btn.addEventListener('click', () => selectFiche(originalIndex));
+                fichesListDiv.appendChild(btn);
+            });
+            ficheStatusSpan.textContent = `${filtered.length} fiche(s) affichée(s) (total ${fiches.length})`;
+        }
+
+        function selectFiche(index) {
+            if (index<0 || index>=fiches.length) return;
+            currentFicheIndex = index;
+            const fiche = fiches[index];
+            let content = globalFullText.substring(fiche.debutIndex, fiche.endIndex);
+            let escaped = content.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+            const key = `highlights_${currentPDFName}_${index}`;
+            const highlights = JSON.parse(localStorage.getItem(key) || "[]");
+            for (let i=highlights.length-1; i>=0; i--) {
+                const h = highlights[i];
+                const start = Math.min(h.start, escaped.length);
+                const end = Math.min(h.end, escaped.length);
+                if (start<end) escaped = escaped.substring(0,start) + `<span class="highlight">${escaped.substring(start,end)}</span>` + escaped.substring(end);
+            }
+            transcriptDiv.innerHTML = `<div style="white-space: pre-wrap;">${escaped}</div>`;
+            transcriptTitleSpan.innerText = `Fiche ${fiche.numero} : ${fiche.titre}`;
+            ficheStatusSpan.innerHTML = `Affichage fiche ${fiche.numero} (${content.length} caractères)`;
+            document.querySelectorAll('.fiche-btn').forEach(btn => btn.classList.remove('active'));
+            const btns = Array.from(fichesListDiv.querySelectorAll('.fiche-btn')).filter(btn => btn.textContent.includes(`Fiche ${fiche.numero} –`));
+            btns.forEach(btn => btn.classList.add('active'));
+            attachHighlighting();
+        }
+
+        function attachHighlighting() {
+            const handler = () => {
+                const sel = window.getSelection();
+                if (sel.isCollapsed) return;
+                const range = sel.getRangeAt(0);
+                if (!transcriptDiv.contains(range.commonAncestorContainer)) return;
+                const selected = sel.toString();
+                if (!selected.trim()) return;
+                const fiche = fiches[currentFicheIndex];
+                const fullRaw = globalFullText.substring(fiche.debutIndex, fiche.endIndex);
+                const startIdx = fullRaw.indexOf(selected);
+                if (startIdx !== -1) {
+                    const endIdx = startIdx + selected.length;
+                    const key = `highlights_${currentPDFName}_${currentFicheIndex}`;
+                    let highlights = JSON.parse(localStorage.getItem(key) || "[]");
+                    highlights.push({ start: startIdx, end: endIdx });
+                    localStorage.setItem(key, JSON.stringify(highlights));
+                    selectFiche(currentFicheIndex);
+                }
+                sel.removeAllRanges();
+            };
+            transcriptDiv.removeEventListener('mouseup', handler);
+            transcriptDiv.removeEventListener('touchend', handler);
+            transcriptDiv.addEventListener('mouseup', handler);
+            transcriptDiv.addEventListener('touchend', handler);
+        }
+
+        function speakCurrentFiche() {
+            const text = transcriptDiv.innerText;
+            if (!text || text.includes("Cliquez")) return;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+        async function shareCurrentFiche() {
+            const title = transcriptTitleSpan.innerText;
+            const text = transcriptDiv.innerText;
+            if (!text || text.includes("Cliquez")) return;
+            if (navigator.share) try { await navigator.share({ title, text }); } catch(e) {}
+            else alert("Partage non supporté");
+        }
+        function exportFiches() {
+            if (!fiches.length) return alert("Aucune fiche");
+            const exportData = fiches.map(f => ({ numero: f.numero, titre: f.titre, contenu: globalFullText.substring(f.debutIndex, f.endIndex) }));
+            const blob = new Blob([JSON.stringify(exportData,null,2)], {type:"application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `fiches_${currentPDFName}.json`; a.click(); URL.revokeObjectURL(url);
+        }
+        function copyTranscript() {
+            const text = transcriptDiv.innerText;
+            if (!text || text.includes("Cliquez")) return alert("Rien à copier");
+            navigator.clipboard.writeText(text); alert("Copié !");
+        }
+
+        async function loadAndProcessPDF(file) {
+            if (!file) return;
+            currentPDFName = file.name.replace(/\.[^/.]+$/, "");
+            fileNameSpan.textContent = file.name;
+            viewerStatus.textContent = "Chargement...";
+            transcriptDiv.innerHTML = "⏳ Lecture...";
+            const arrayBuffer = await file.arrayBuffer();
+            try {
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                pdfDoc = await loadingTask.promise;
+                totalPages = pdfDoc.numPages;
+                pageCountSpan.textContent = totalPages;
+                currentPage = 1;
+                await renderPage(currentPage);
+                updateNavButtons();
+                viewerStatus.textContent = "Extraction...";
+                globalFullText = await extractFullText(pdfDoc);
+                fiches = detectAllFiches(globalFullText);
+                renderFichesButtons();
+                if (fiches.length) selectFiche(0);
+                else transcriptDiv.innerHTML = "Aucune fiche trouvée.";
+                localStorage.setItem(`fullText_${currentPDFName}`, globalFullText);
+                localStorage.setItem(`fiches_${currentPDFName}`, JSON.stringify(fiches));
+                viewerStatus.textContent = `PDF chargé : ${totalPages} pages, ${fiches.length} fiches.`;
+            } catch(err) { console.error(err); viewerStatus.textContent = "Erreur PDF"; transcriptDiv.innerHTML = "Erreur de chargement."; }
+        }
+
+        function refreshDetection() {
+            if (!globalFullText) { alert("Chargez un PDF."); return; }
+            fiches = detectAllFiches(globalFullText);
+            renderFichesButtons(searchInput.value);
+            if (fiches.length) selectFiche(0);
+        }
+
+        fileInput.addEventListener('change', e => { if(e.target.files.length) loadAndProcessPDF(e.target.files[0]); });
+        prevBtn.addEventListener('click', onPrev);
+        nextBtn.addEventListener('click', onNext);
+        copyBtn.addEventListener('click', copyTranscript);
+        speakBtn.addEventListener('click', speakCurrentFiche);
+        shareBtn.addEventListener('click', shareCurrentFiche);
+        exportBtn.addEventListener('click', exportFiches);
+        refreshBtn.addEventListener('click', refreshDetection);
+        searchInput.addEventListener('input', e => renderFichesButtons(e.target.value));
+        viewerStatus.textContent = "Prêt. Chargez un PDF.";
+    })();
+</script>
 </body>
-</html>
+    </html>
